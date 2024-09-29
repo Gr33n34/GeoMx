@@ -33,3 +33,21 @@ for gene in genes:
     #result = smf.mixedlm("gene_expression ~ state", data=metadata, groups=adata.obs['patient_id']).fit()
     print(f"Results for {gene}:")
     print(result.summary())
+
+### Best practice gseapy
+# Extract ranked genes for a particular state (state1 vs others)
+# Assuming you have performed differential expression analysis
+ranked_genes = adata.uns['rank_genes_groups']['names']['state1']  # All genes ranked for state1
+
+# Perform GSEA with the ranked gene list
+gsea_results = gp.prerank(rnk=ranked_genes, gene_sets='KEGG_2021', organism='Human')
+
+### Assuming transitions are of most importance
+# Assuming you've performed pairwise comparisons
+sc.tl.rank_genes_groups(adata, 'state', groups=['state1'], reference='state2', method='wilcoxon')
+
+# Extract DEGs for the pairwise comparison
+degs_state1_vs_state2 = adata.uns['rank_genes_groups']['names']['state1']
+
+# Perform GSEA with pairwise DEGs
+gsea_results = gp.enrichr(gene_list=degs_state1_vs_state2, gene_sets='KEGG_2021', organism='Human')
