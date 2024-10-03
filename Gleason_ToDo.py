@@ -51,3 +51,23 @@ degs_state1_vs_state2 = adata.uns['rank_genes_groups']['names']['state1']
 
 # Perform GSEA with pairwise DEGs
 gsea_results = gp.enrichr(gene_list=degs_state1_vs_state2, gene_sets='KEGG_2021', organism='Human')
+
+### Formatting data for immune cell deconvolution
+# Select all columns except the first one for processing
+df = df_values[df_values.columns]  # Use all columns
+
+# Sort the DataFrame by the 'TargetName' column
+df = df.sort_values(by='TargetName', ascending=True)
+
+# Automatically rename columns (except the first one)
+column_mapping = {df.columns[0]: 'Symbol'}  # First column remains 'Symbol'
+column_mapping.update({df.columns[i]: f'Sample{i}' for i in range(1, len(df.columns))})
+
+# Rename columns using the generated column_mapping
+df = df.rename(columns=column_mapping)
+
+# Perform log normalization on all columns except the first one (starting from index 1)
+df.iloc[:, 1:] = np.log(df.iloc[:, 1:] + 1)
+
+# Save the resulting DataFrame as a tab-separated file
+df.to_csv('TestFile.txt', sep='\t', index=False)
