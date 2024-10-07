@@ -71,3 +71,28 @@ df.iloc[:, 1:] = np.log(df.iloc[:, 1:] + 1)
 
 # Save the resulting DataFrame as a tab-separated file
 df.to_csv('TestFile.txt', sep='\t', index=False)
+
+### Utilizing the CrossTab function
+pd.crosstab(adata.obs.Gleason, adata.obs.Zentrum)
+
+### Using violin plots
+with rc_context({"figure.figsize": (4.5, 3)}):
+    sc.pl.violin(adata, ["CD79A", "MS4A1"], groupby="clusters")
+
+### Plot heatmap
+ax = sc.pl.heatmap(
+    adata, marker_genes_dict, groupby="clusters", cmap="viridis", dendrogram=True)
+
+### Visualize marker genes using heatmap
+sc.pl.rank_genes_groups_heatmap(
+    adata,
+    n_genes=3,
+    use_raw=False,
+    swap_axes=True,
+    vmin=-3,
+    vmax=3,
+    cmap="bwr",
+    layer="log",
+    figsize=(10, 7),
+    show=False,
+)
