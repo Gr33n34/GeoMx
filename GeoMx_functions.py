@@ -8,7 +8,7 @@ import os
 import math
 import anndata as ad
 
-def GeoMx_Reader(file_path):
+def GeoMx_Reader(file_path, metadata_columns):
     """
     Reads a GeoMx-formatted Excel file and converts it to an AnnData object.
 
@@ -29,7 +29,6 @@ def GeoMx_Reader(file_path):
     segment_properties_df = pd.read_excel(file_path, sheet_name="SegmentProperties")
 
     # Filter the metadata to include relevant columns
-    metadata_columns = ["SegmentDisplayName", "Age", "Gender", "Phenotype", "Treatment", "AreaClass","Entity", "Patient"]
     metadata = segment_properties_df[metadata_columns]
 
     # Ensure sample names in count data match the SegmentDisplayName in metadata
