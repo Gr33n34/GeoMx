@@ -73,3 +73,61 @@ def filter_by_median(adata, required_columns):
     # Create a new AnnData object with the rows to keep
     new_adata = adata[indices_to_keep]
     return new_adata
+
+def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_threshold=0.05,
+                 title='Vulcano plot', legend_loc='upper right', grid=True, save_as_svg=False, 
+                 svg_filename='vulcano_plot.svg', label=True):
+    """
+    Reads DataFrame with log10 p-values and plots a volcano plot.
+
+    Parameters:
+    data (pd.DataFrame): Contains columns 'Target', 'log2FoldChange', 'padj'
+    save_as_svg (bool): If True, saves the plot as an SVG file.
+    svg_filename (str): Filename for saving the plot if save_as_svg is True.
+    """
+    # Convert padj to -log10(padj), setting NaN values to 1.0
+    data['negLog10padj'] = -np.log10(data['padj'].fillna(1.0))
+    
+    # Compute significance based on padj and log2FC thresholds
+    data['Significant'] = (data['padj'] < padj_threshold) & ((data['log2FoldChange'] > log2fc_threshold) | (data['log2FoldChange'] < -log2fc_threshold))
+    
+    # Figure dimensions
+    plt.figure(figsize=(plotsize_x, plotsize_y))
+
+    # Scatter plot with coloring based on significance
+    plt.scatter(
+        data['log2FoldChange'], 
+        data['negLog10padj'], 
+        c=data['Significant'].map({True: 'red', False: 'gray'}),
+        alpha=0.7,
+        label='Genes'
+    )
+
+    # Add threshold lines
+    plt.axhline(-np.log10(padj_threshold), color='blue', linestyle='--', label=f'padj = {padj_threshold}')
+    plt.axvline(log2fc_threshold, color='green', linestyle='--', label=f'log2FC = ±{log2fc_threshold}')
+    plt.axvline(-log2fc_threshold, color='green', linestyle='--')
+
+    # Add gene labels only for significant points
+    if label == True:
+        for _, row in data[data['Significant']].iterrows():
+            plt.text(
+                row['log2FoldChange'], 
+                row['negLog10padj'], 
+                row['Target'], 
+                fontsize=8,
+                color='red'
+            )
+
+    # Add labels and title
+    plt.title(title)
+    plt.xlabel('Log2 Fold Change')
+    plt.ylabel('-log10(FDR-corrected p-value)')
+    plt.legend(loc=legend_loc)
+    plt.grid(grid)
+    
+    # Save plot as SVG if enabled
+    if save_as_svg:
+        plt.savefig(svg_filename, format='svg')
+    
+    plt.show()
