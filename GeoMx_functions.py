@@ -85,8 +85,10 @@ def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_t
     save_as_svg (bool): If True, saves the plot as an SVG file.
     svg_filename (str): Filename for saving the plot if save_as_svg is True.
     """
+    # Enables manually choosing another column for pvalues 
     if pv is None:
         pv = 'padj'
+    
     # Convert padj to -log10(padj), setting NaN values to 1.0
     data['negLog10padj'] = -np.log10(data['padj'].fillna(1.0))
     
