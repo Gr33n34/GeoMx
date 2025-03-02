@@ -88,12 +88,12 @@ def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_t
     # Enables manually choosing another column for pvalues 
     if pv is None:
         pv = 'padj'
-    
+
     # Convert padj to -log10(padj), setting NaN values to 1.0
-    data['negLog10padj'] = -np.log10(data['padj'].fillna(1.0))
+    data['negLog10padj'] = -np.log10(data[pv].fillna(1.0))
     
     # Compute significance based on padj and log2FC thresholds
-    data['Significant'] = (data['padj'] < padj_threshold) & ((data['log2FoldChange'] > log2fc_threshold) | (data['log2FoldChange'] < -log2fc_threshold))
+    data['Significant'] = (data[pv] < padj_threshold) & ((data['log2FoldChange'] > log2fc_threshold) | (data['log2FoldChange'] < -log2fc_threshold))
     
     # Figure dimensions
     plt.figure(figsize=(plotsize_x, plotsize_y))
