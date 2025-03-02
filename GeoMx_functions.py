@@ -76,7 +76,7 @@ def filter_by_median(adata, required_columns):
 
 def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_threshold=0.05,
                  title='Vulcano plot', legend_loc='upper right', grid=True, save_as_svg=False, 
-                 svg_filename='vulcano_plot.svg', label=True):
+                 svg_filename='vulcano_plot.svg', label=True, downsample=False, pv=None):
     """
     Reads DataFrame with log10 p-values and plots a volcano plot.
 
@@ -85,6 +85,8 @@ def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_t
     save_as_svg (bool): If True, saves the plot as an SVG file.
     svg_filename (str): Filename for saving the plot if save_as_svg is True.
     """
+    if pv is None:
+        pv = 'padj'
     # Convert padj to -log10(padj), setting NaN values to 1.0
     data['negLog10padj'] = -np.log10(data['padj'].fillna(1.0))
     
@@ -93,7 +95,16 @@ def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_t
     
     # Figure dimensions
     plt.figure(figsize=(plotsize_x, plotsize_y))
-
+    
+    # Helper function to decrease file size
+    if downsample == True:
+        significant = data[data['Significant'] == True]
+        non_significant = data[data['Significant'] == False]
+        # Randomly select 10% of non-significant points
+        non_significant_sample = non_significant.sample(frac=0.1, random_state=42)
+        # Concatenate the sampled non-significant points with the significant ones
+        data = pd.concat([significant, non_significant_sample])
+        
     # Scatter plot with coloring based on significance
     plt.scatter(
         data['log2FoldChange'], 
