@@ -118,7 +118,7 @@ def vulcano_plot(data, plotsize_x=10, plotsize_y=6, log2fc_threshold=2.0, padj_t
 
     # Add threshold lines
     plt.axhline(-np.log10(padj_threshold), color='blue', linestyle='--', label=f'padj = {padj_threshold}')
-    plt.axvline(log2fc_threshold, color='green', linestyle='--', label=f'log2FC = ±{log2fc_threshold}')
+    plt.axvline(log2fc_threshold, color='green', linestyle='--', label=f'log2FC = {log2fc_threshold}')
     plt.axvline(-log2fc_threshold, color='green', linestyle='--')
 
     # Add gene labels only for significant points
